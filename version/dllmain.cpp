@@ -37,7 +37,7 @@ DWORD WINAPI Payload(LPVOID lpParam)
         0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 //JMP return_SetHealth
     };
     uintptr_t InfHealth = Memory::FindPattern(_XOR_("game.dll"), _XOR_("41 8B 84 8B 28 4C 00 00"));
-    memory1 = Memory::AllocateMemory(InfHealth, sizeof(SetHealthBytes));
+    LPVOID memory1 = Memory::AllocateMemory(InfHealth, sizeof(SetHealthBytes));
     Memory::CreateTrampoline(InfHealth, memory1);
     Memory::WriteAssemblyInstructions((uintptr_t)memory1, InfHealth + 18, SetHealthBytes, Memory::ArrayLength(SetHealthBytes));
     uintptr_t GrenadesAddress = Memory::FindPattern(_XOR_("game.dll"), _XOR_("4D 03 C6 41 FF 08"));
