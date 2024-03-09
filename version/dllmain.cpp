@@ -13,7 +13,7 @@
 HANDLE hMainThread;
 HMODULE g_hModule;
 
-void WINAPI Payload(LPVOID lpParam)
+DWORD WINAPI Payload(LPVOID lpParam)
 {
     BYTE WriteHealthBytes[] =
     {
