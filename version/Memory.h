@@ -9,7 +9,6 @@
 namespace Memory
 {
 	uintptr_t FindPattern(const char* moduleName, const char* pattern) {
-		// Get the base address of the module
 		HMODULE moduleHandle = GetModuleHandleA(moduleName);
 		if (!moduleHandle) {
 			std::cerr << _XOR_("Failed to get module handle.") << std::endl;
@@ -20,11 +19,10 @@ namespace Memory
 		GetModuleInformation(GetCurrentProcess(), moduleHandle, &moduleInfo, sizeof(moduleInfo));
 		uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
 
-		// Convert the pattern to bytes
 		std::vector<uint8_t> patternBytes;
 		for (size_t i = 0; i < strlen(pattern); i += 3) {
 			if (pattern[i] == '?' && pattern[i + 1] == '?') {
-				patternBytes.push_back(0x00);  // Use a specific wildcard byte
+				patternBytes.push_back(0x00);
 			}
 			else {
 				std::string byteString = { pattern[i], pattern[i + 1] };
@@ -32,7 +30,6 @@ namespace Memory
 			}
 		}
 
-		// Search for the pattern in the module's memory
 		for (uintptr_t i = 0; i < moduleInfo.SizeOfImage - patternBytes.size(); ++i) {
 			bool found = true;
 			for (size_t j = 0; j < patternBytes.size(); ++j) {
@@ -41,9 +38,7 @@ namespace Memory
 					break;
 				}
 			}
-
 			if (found) {
-				//std::cout << "Pattern found at offset: 0x" << std::hex << i << std::dec << std::endl;
 				return (uintptr_t)moduleBase + i;
 			}
 		}
@@ -70,7 +65,6 @@ namespace Memory
 
 	LPVOID AllocateMemory(uintptr_t targetAddress, size_t size)
 	{
-		// Allocate memory near the calculated base address
 		return VirtualAlloc(nullptr, size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 	}
 
@@ -78,27 +72,19 @@ namespace Memory
 	{
 		for (size_t i = 0; i < size; ++i)
 		{
-			// Print each byte in hexadecimal format
 			printf("%02X", static_cast<int>(byteArray[i]));
 		}
 		printf("\n");
 	}
 
-	// Function to create a trampoline by patching a byte with a JMP instruction
 	void CreateTrampoline(uintptr_t targetAddress, LPVOID trampolineAddress)
 	{
-		// The JMP instruction bytes
 		BYTE jmpInstruction[] = { 0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-		// Calculate the relative offset to the target address
 		ULONG_PTR relativeOffset = reinterpret_cast<ULONG_PTR>(trampolineAddress);
 		memcpy(&jmpInstruction[6], &relativeOffset, sizeof(relativeOffset));
-
-		// Write the JMP instruction to the target address
 		Patch((LPVOID)targetAddress, jmpInstruction, 14);
 	}
 
-	// Function to find the index of a pattern in an array
 	int FindPatternIndex(const unsigned char* data, size_t dataSize, const unsigned char* pattern, size_t patternSize)
 	{
 		for (size_t i = 0; i < dataSize - patternSize; ++i)
@@ -108,20 +94,17 @@ namespace Memory
 				return static_cast<int>(i);
 			}
 		}
-		return -1; // Pattern not found
+		return -1;
 	}
 
-	// Helper function to get the length of an array
 	template <typename T, size_t N>
 	constexpr size_t ArrayLength(const T(&)[N]) {
 		return N;
 	}
 
-	// Function to write the assembly instructions to the allocated memory
 	void WriteAssemblyInstructions(uintptr_t allocatedMemory, uintptr_t originalAddress, BYTE* assemblyBytes, size_t assemblyBytesSize)
 	{
 		memcpy(&assemblyBytes[assemblyBytesSize - 8], &originalAddress, sizeof(originalAddress));
 		Patch((LPVOID)allocatedMemory, assemblyBytes, assemblyBytesSize);
 	}
-
 }
