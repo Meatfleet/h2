@@ -37,15 +37,10 @@ DWORD WINAPI Payload(LPVOID lpParam)
         0x48, 0x8B, 0x74, 0x24, 0x28,                                           // mov rsi,[rsp+28]
         0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 //JMP return_SetHealth
     };
-    uintptr_t InfHealth = Memory::FindPattern(_XOR_("game.dll"), _XOR_("45 89 38 49 8B 84 DE 28 04 00 00"));
-    LPVOID memory = Memory::AllocateMemory(InfHealth, sizeof(WriteHealthBytes));
+    uintptr_t InfHealth = Memory::FindPattern(_XOR_("game.dll"), _XOR_("41 8B 84 8B 28 4C 00 00"));
+    LPVOID memory = Memory::AllocateMemory(InfHealth, sizeof(SetHealthBytes));
     Memory::CreateTrampoline(InfHealth, memory);
-    Memory::WriteAssemblyInstructions((uintptr_t)memory, InfHealth + 14, WriteHealthBytes, Memory::ArrayLength(WriteHealthBytes));
-    uintptr_t InfHealth1 = Memory::FindPattern(_XOR_("game.dll"), _XOR_("41 8B 84 8B 28 4C 00 00"));
-    memory = Memory::AllocateMemory(InfHealth1, sizeof(SetHealthBytes));
-    Memory::CreateTrampoline(InfHealth1, memory);
-    Memory::WriteAssemblyInstructions((uintptr_t)memory, InfHealth1 + 18, SetHealthBytes, Memory::ArrayLength(SetHealthBytes));
-    gData.InfHealth = !gData.InfHealth;
+    Memory::WriteAssemblyInstructions((uintptr_t)memory, InfHealth + 18, SetHealthBytes, Memory::ArrayLength(SetHealthBytes));
     uintptr_t GrenadesAddress = Memory::FindPattern(_XOR_("game.dll"), _XOR_("4D 03 C6 41 FF 08"));
     BYTE GrenadeBytes[] =
     {
@@ -56,10 +51,9 @@ DWORD WINAPI Payload(LPVOID lpParam)
         0x4A, 0x8B, 0x84, 0xED, 0x30, 0x20, 0x00, 0x00, // mov rax,[rbp+r13*8+00002030]
         0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 //JMP return_Grenades
     };
-    LPVOID memory = Memory::AllocateMemory(GrenadesAddress, sizeof(GrenadeBytes));
-    Memory::CreateTrampoline(GrenadesAddress, memory);
-    Memory::WriteAssemblyInstructions((uintptr_t)memory, GrenadesAddress + 14, GrenadeBytes, Memory::ArrayLength(GrenadeBytes));
-    gData.InfGrenadesLegit = !gData.InfGrenadesLegit;
+    LPVOID memory2 = Memory::AllocateMemory(GrenadesAddress, sizeof(GrenadeBytes));
+    Memory::CreateTrampoline(GrenadesAddress, memory2);
+    Memory::WriteAssemblyInstructions((uintptr_t)memory2, GrenadesAddress + 14, GrenadeBytes, Memory::ArrayLength(GrenadeBytes));
     uintptr_t AmmoAddress = Memory::FindPattern(_XOR_("game.dll"), _XOR_("41 83 2C C2 01"));
     BYTE AmmoBytes[] =
     {
@@ -70,10 +64,9 @@ DWORD WINAPI Payload(LPVOID lpParam)
         0x49, 0x8B, 0x84, 0xCA, 0x28, 0x20, 0x00, 0x00,  // mov rax,[r10+rcx*8+00002028]
         0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 //JMP return_SubtractAmmo
     };
-    LPVOID memory = Memory::AllocateMemory(AmmoAddress, sizeof(AmmoBytes));
-    Memory::CreateTrampoline(AmmoAddress, memory);
-    Memory::WriteAssemblyInstructions((uintptr_t)memory, AmmoAddress + 17, AmmoBytes, Memory::ArrayLength(AmmoBytes));
-    gData.InfAmmoLegit = !gData.InfAmmoLegit;
+    LPVOID memory3 = Memory::AllocateMemory(AmmoAddress, sizeof(AmmoBytes));
+    Memory::CreateTrampoline(AmmoAddress, memory3);
+    Memory::WriteAssemblyInstructions((uintptr_t)memory3, AmmoAddress + 17, AmmoBytes, Memory::ArrayLength(AmmoBytes));
     uintptr_t SyringesAddress = Memory::FindPattern(_XOR_("game.dll"), _XOR_("48 03 C9 45 8B BC CA C8 75 00 00"));
     BYTE SyringesBytes[] =
     {
@@ -85,18 +78,15 @@ DWORD WINAPI Payload(LPVOID lpParam)
         0x39, 0xD0,                                           // cmp eax,edx
         0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 //JMP return_Syringes
     };
-    LPVOID memory = Memory::AllocateMemory(SyringesAddress, sizeof(SyringesBytes));
-    Memory::CreateTrampoline(SyringesAddress, memory);
-    Memory::WriteAssemblyInstructions((uintptr_t)memory, SyringesAddress + 14, SyringesBytes, Memory::ArrayLength(SyringesBytes));
-    gData.InfSyringesLegit = !gData.InfSyringesLegit;
+    LPVOID memory4 = Memory::AllocateMemory(SyringesAddress, sizeof(SyringesBytes));
+    Memory::CreateTrampoline(SyringesAddress, memory4);
+    Memory::WriteAssemblyInstructions((uintptr_t)memory4, SyringesAddress + 14, SyringesBytes, Memory::ArrayLength(SyringesBytes));
     uintptr_t Stamina = Memory::FindPattern(_XOR_("game.dll"), _XOR_("F3 41 0F 11 08 8B 48 10 E8 ?? ?? ?? ?? 41 8B 47 48"));
     BYTE StaminaPatch[] = { 0xF3, 0x41, 0x0F, 0x11, 0x30 };
     Memory::Patch((LPVOID)(Stamina), StaminaPatch, 5);
-    gData.InfStamina = !gData.InfStamina;
     uintptr_t Stratagems = Memory::FindPattern(_XOR_("game.dll"), _XOR_("0F 86 BF 01 00 00 0F"));
     BYTE StratagemsPatch1[] = { 0x90, 0xE9 };
     Memory::Patch((LPVOID)(Stratagems), StratagemsPatch1, 2);
-    gData.InfStratagems = !gData.InfStratagems;
     BYTE NoReloadByte[] =
     {
         0x90,
@@ -106,19 +96,15 @@ DWORD WINAPI Payload(LPVOID lpParam)
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Placeholder for the target address
     };
     uintptr_t NoReload = Memory::FindPattern(_XOR_("game.dll"), _XOR_("41 89 28 49 8B 84 CA 28 20 00 00 8B 48 10"));
-    LPVOID memory = Memory::AllocateMemory(NoReload, 0x100);
-    Memory::CreateTrampoline(NoReload, memory);
-    Memory::WriteAssemblyInstructions((uintptr_t)memory, NoReload + 14, NoReloadByte, Memory::ArrayLength(NoReloadByte));
-    gData.NoReload = !gData.NoReload;
+    LPVOID memory5 = Memory::AllocateMemory(NoReload, 0x100);
+    Memory::CreateTrampoline(NoReload, memory5);
+    Memory::WriteAssemblyInstructions((uintptr_t)memory5, NoReload + 14, NoReloadByte, Memory::ArrayLength(NoReloadByte));
     uintptr_t CannonOverheat = Memory::FindPattern(_XOR_("game.dll"), _XOR_("F3 0F 11 09 4C 8B C1 49"));
     Memory::Nop((LPVOID)(CannonOverheat), 4);
-    gData.NoCannonOverheat = !gData.NoCannonOverheat;
     uintptr_t SpecWeapon = Memory::FindPattern(_XOR_("game.dll"), _XOR_("44 89 7F 08 41 80 BC 24"));
     Memory::Nop((LPVOID)(SpecWeapon), 4);
-    gData.InfSpecWeapon = !gData.InfSpecWeapon;
     uintptr_t Backpack = Memory::FindPattern(_XOR_("game.dll"), _XOR_("2B C6 4D 8D 85 48 04 00 00"));
     Memory::Nop((LPVOID)(Backpack), 2);
-    gData.InfBackpack = !gData.InfBackpack;
     BYTE ShowAllMapIconsByte[] =
     {
         0xB8, 0x01, 0x00, 0x00, 0x00, 0x90
@@ -146,7 +132,6 @@ DWORD WINAPI Payload(LPVOID lpParam)
     Memory::Patch((LPVOID)(aob_CheckIfMinorInterestBlipIsDiscovered), ShowAllMapIconsByte2n4, 2);
     Memory::Patch((LPVOID)(aob_GetMinorInterestBlipIcon), ShowAllMapIconsByte3, 2);
     Memory::Patch((LPVOID)(aob_CheckMissionBlip), ShowAllMapIconsByte2n4, 2);
-    gData.ShowAllMapIcons = !gData.ShowAllMapIcons;
 }
 
 
