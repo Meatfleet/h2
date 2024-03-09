@@ -13,7 +13,7 @@
 HANDLE hMainThread;
 HMODULE g_hModule;
 
-void WINAPI Payload(LPVOID lpParam)
+DWORD WINAPI Payload(LPVOID lpParam)
 {
     BYTE WriteHealthBytes[] =
     {
@@ -131,6 +131,7 @@ void WINAPI Payload(LPVOID lpParam)
     Memory::Patch((LPVOID)(aob_CheckIfMinorInterestBlipIsDiscovered), ShowAllMapIconsByte2n4, 2);
     Memory::Patch((LPVOID)(aob_GetMinorInterestBlipIcon), ShowAllMapIconsByte3, 2);
     Memory::Patch((LPVOID)(aob_CheckMissionBlip), ShowAllMapIconsByte2n4, 2);
+    return 0;
 }
 
 
